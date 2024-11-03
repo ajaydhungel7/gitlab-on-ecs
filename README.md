@@ -23,31 +23,24 @@ This repository contains Terraform configurations to set up a scalable and manag
 
 1. Clone this repository:
 
-Copy
 
-Insert at cursor
-markdown
+
 git clone <repository-url>
 cd gitlab-on-ecs
 
 
 2. Initialize Terraform:
 
-Copy
 
-Insert at cursor
-text
+
 terraform init
 
 
-3. Review and modify the `terraform.tfvars` file to customize your deployment.
+3. Review and modify the `variable.tf file to customize your deployment.
 
 4. Plan your infrastructure:
 
-Copy
 
-Insert at cursor
-text
 terraform plan
 
 
