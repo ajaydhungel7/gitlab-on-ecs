@@ -12,21 +12,40 @@ This repository contains Terraform configurations to set up a scalable and manag
 - Scalable infrastructure using AWS services
 - Infrastructure as Code using Terraform
 - Easy configuration and customization
+-  Custom Docker image for GitLab
 
 ## Prerequisites
 
 - AWS account with appropriate permissions
 - Terraform installed on your local machine
 - Basic understanding of AWS services and Terraform
+- Docker installed on your local machine
 
 ## Getting Started
 
 1. Clone this repository:
 
 
-
 git clone <repository-url>
 cd gitlab-on-ecs
+
+Before deploying to ECS, you need to build a custom Docker image for GitLab:
+ Navigate to the Docker directory:
+
+
+
+cd docker
+
+
+Build the Docker image: [1]
+
+docker build -t your-gitlab-image:tag .
+
+
+Push the image to your preferred container registry (e.g., Amazon ECR):
+
+docker push your-registry-url/your-gitlab-image:tag
+
 
 
 2. Initialize Terraform:
