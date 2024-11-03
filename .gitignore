@@ -1,6 +1,6 @@
 
 # Ignore Terraform workspace files
-**/.terraform/*
+**/.terraform/
 
 # Ignore Terraform plan files
 *.tfplan
