@@ -2,6 +2,7 @@
 # Ignore the .terraform directory and its contents inside the terraform directory
 terraform/.terraform/
 
+
 # Ignore Terraform plan files
 *.tfplan
 
