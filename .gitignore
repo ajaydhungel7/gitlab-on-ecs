@@ -1,9 +1,6 @@
 
 # Ignore Terraform workspace files
-terraform/.terraform/
-
-terraform/.terraform.lock.hcl
-
+**/.terraform/*
 
 # Ignore Terraform plan files
 *.tfplan

@@ -3,10 +3,6 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "availability_zone" {
-  description = "Availability zone to deploy in"
-  default     = "us-east-1a"
-}
 
 variable "db_username" {
   description = "Database username for GitLab"
