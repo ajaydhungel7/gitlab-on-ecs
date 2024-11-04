@@ -48,14 +48,6 @@ A custom Docker image for GitLab is built to:
 - Include specific configurations tailored for ECS deployment
 - Optimize for performance in a containerized environment
 
-## Terraform Structure
-
-The Terraform code is organized into modules for better maintainability:
-
-- `ecs/`: Defines the ECS cluster and service
-- `rds/`: Sets up the PostgreSQL database
-- `networking/`: Configures VPC and related components
-- `security/`: Manages security groups and IAM roles
 
 ## Scaling and High Availability
 
