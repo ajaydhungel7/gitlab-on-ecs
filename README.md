@@ -62,7 +62,6 @@ The infrastructure is designed for high availability and scalability:
 Observability is achieved through:
 
 - CloudWatch for metrics and log aggregation
-- X-Ray for distributed tracing (if implemented)
 
 ## Customization and Extension
 
