@@ -1,4 +1,4 @@
-# GitLab on ECS
+# GitLab Community Edition  on ECS Fargate
 
 This project implements a scalable GitLab deployment on Amazon Elastic Container Service (ECS) using Terraform.
 
