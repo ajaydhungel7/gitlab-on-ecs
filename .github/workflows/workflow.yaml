@@ -37,6 +37,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       working-directory: ./docker
       run: |
-        docker build -t $ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest .
+        docker build -t $ECR_REPOSITORY:$IMAGE_TAG  .
+        docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest
         docker push $ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REPOSITORY:latest
