@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "gitlab_task" {
 
 
       name      = "gitlab-CE"
-      image     = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:8"  # Use the GitLab CE image from Docker Hub or ECR
+      image     = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:115"  # Use the GitLab CE image from Docker Hub or ECR
       cpu       = 512
       memory    = 1024
       essential = true
