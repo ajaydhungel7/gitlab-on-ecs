@@ -62,4 +62,4 @@ jobs:
 
     - name: Update ECS Service
       run: |
-            aws ecs update-service --cluster gitlab-runner-cluster  --gitlab-service  --force-new-deployment
+            aws ecs update-service --cluster gitlab-runner-cluster --service gitlab-service  --force-new-deployment
