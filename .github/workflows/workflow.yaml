@@ -67,7 +67,8 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
             jq --arg newTag "$IMAGE_TAG" \
-            '.containerDefinitions[0].image = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:" + $newTag' \
+            'del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy) | 
+            .containerDefinitions[0].image = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:" + $newTag' \
             task-def.json > updated-task-def.json
             cat updated-task-def.json
 
