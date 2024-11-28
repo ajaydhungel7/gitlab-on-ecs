@@ -12,7 +12,6 @@ env:
 
 jobs:
   build-and-push:
-    if: false
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -49,15 +48,7 @@ jobs:
       contents: read
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::544234170512:role/GithubRole
-        aws-region: ${{ env.AWS_REGION }}
-
+  
     - name: Get Current Task Definition
       run: |
             aws ecs describe-task-definition --task-definition gitlab-task --query taskDefinition --output json > task-def.json
@@ -78,4 +69,4 @@ jobs:
 
     - name: Update ECS Service
       run: |
-            aws ecs update-service --cluster your-cluster-name --service your-service-name --force-new-deployment
+            aws ecs update-service --cluster gitlab-runner-cluster  --gitlab-service  --force-new-deployment
