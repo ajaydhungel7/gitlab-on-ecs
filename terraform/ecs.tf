@@ -15,12 +15,6 @@ resource "aws_ecr_repository" "gitlab_runner_repo" {
   }
 }
 
-# Output the repository URL
-output "ecr_repository_url" {
-  value = aws_ecr_repository.gitlab_runner_repo.repository_url
-  description = "The URL of the ECR repository"
-}
-
 
 # ECS Task Definition
 resource "aws_ecs_task_definition" "gitlab_task" {
@@ -76,15 +70,15 @@ resource "aws_ecs_task_definition" "gitlab_task" {
        mountPoints = [
         {
           containerPath = "/etc/gitlab"
-          sourceVolume  = "efs-shared"
+          sourceVolume  = "efs-config"
         },
         {
           containerPath = "/var/opt/gitlab"
-          sourceVolume  = "efs-shared"
+          sourceVolume  = "efs-data"
         },
         {
           containerPath = "/var/log/gitlab"
-          sourceVolume  = "efs-shared"
+          sourceVolume  = "efs-logs"
         }
       ]
        
@@ -97,12 +91,28 @@ resource "aws_ecs_task_definition" "gitlab_task" {
   ])
 
   volume {
-    name = "efs-shared"
-    efs_volume_configuration {
-      file_system_id = aws_efs_file_system.gitlab_efs.id  # EFS file system ID for /etc/gitlab
-      transit_encryption = "ENABLED"   # Optional, enables encryption in transit
-    }
+  name = "efs-config"
+  efs_volume_configuration {
+    file_system_id = aws_efs_file_system.efs_config.id  # EFS file system ID for efs-config
+    transit_encryption = "ENABLED"   # Optional, enables encryption in transit
   }
+}
+
+volume {
+  name = "efs-data"
+  efs_volume_configuration {
+    file_system_id = aws_efs_file_system.efs_data.id  # EFS file system ID for efs-data
+    transit_encryption = "ENABLED"   # Optional, enables encryption in transit
+  }
+}
+
+volume {
+  name = "efs-logs"
+  efs_volume_configuration {
+    file_system_id = aws_efs_file_system.efs_logs.id  # EFS file system ID for efs-logs
+    transit_encryption = "ENABLED"   # Optional, enables encryption in transit
+  }
+}
 
 }
 
@@ -270,14 +280,36 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_default_policy" {
 }
 
 
-resource "aws_efs_file_system" "gitlab_efs" {
-  creation_token   = "gitlab-efs-token"
+resource "aws_efs_file_system" "efs_config" {
+  creation_token   = "efs-config-token"
   performance_mode = "generalPurpose"  # Options: generalPurpose, maxIO
   lifecycle_policy {
     transition_to_ia = "AFTER_30_DAYS"  # Move files to Infrequent Access after 30 days
   }
   tags = {
-    Name = "gitlab-efs"
+    Name = "efs-config"
+  }
+}
+
+resource "aws_efs_file_system" "efs_data" {
+  creation_token   = "efs-data-token"
+  performance_mode = "generalPurpose"  # Options: generalPurpose, maxIO
+  lifecycle_policy {
+    transition_to_ia = "AFTER_30_DAYS"  # Move files to Infrequent Access after 30 days
+  }
+  tags = {
+    Name = "efs-data"
+  }
+}
+
+resource "aws_efs_file_system" "efs_logs" {
+  creation_token   = "efs-logs-token"
+  performance_mode = "generalPurpose"  # Options: generalPurpose, maxIO
+  lifecycle_policy {
+    transition_to_ia = "AFTER_30_DAYS"  # Move files to Infrequent Access after 30 days
+  }
+  tags = {
+    Name = "efs-logs"
   }
 }
 
@@ -305,9 +337,26 @@ resource "aws_security_group" "gitlab_efs_sg" {
 }
 
 
-resource "aws_efs_mount_target" "gitlab_efs_mt" {
+# Mount targets for efs-config
+resource "aws_efs_mount_target" "efs_config_mt" {
   for_each        = aws_subnet.public_subnets
-  file_system_id  = aws_efs_file_system.gitlab_efs.id
+  file_system_id  = aws_efs_file_system.efs_config.id
+  subnet_id       = each.value.id
+  security_groups = [aws_security_group.gitlab_efs_sg.id]
+}
+
+# Mount targets for efs-data
+resource "aws_efs_mount_target" "efs_data_mt" {
+  for_each        = aws_subnet.public_subnets
+  file_system_id  = aws_efs_file_system.efs_data.id
+  subnet_id       = each.value.id
+  security_groups = [aws_security_group.gitlab_efs_sg.id]
+}
+
+# Mount targets for efs-logs
+resource "aws_efs_mount_target" "efs_logs_mt" {
+  for_each        = aws_subnet.public_subnets
+  file_system_id  = aws_efs_file_system.efs_logs.id
   subnet_id       = each.value.id
   security_groups = [aws_security_group.gitlab_efs_sg.id]
 }

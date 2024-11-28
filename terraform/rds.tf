@@ -13,7 +13,7 @@ resource "aws_db_instance" "gitlab_rds" {
   username             = var.db_username
   password             = var.db_password
   parameter_group_name = "default.postgres15"
-  publicly_accessible  = false
+  publicly_accessible  = true
   vpc_security_group_ids = [aws_security_group.gitlab_rds_sg.id]
   skip_final_snapshot = true
   db_subnet_group_name = aws_db_subnet_group.gitlab_db_subnet_group.name

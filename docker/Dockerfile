@@ -1,17 +1,34 @@
-# Start from the official GitLab Omnibus image
-FROM gitlab/gitlab-ce:latest
+FROM gitlab/gitlab-ce:17.3.7-ce.0
 
-# Copy your custom configuration file into the container
-COPY config/gitlab-omnibus.conf /etc/gitlab/gitlab.rb
+ENV GITLAB_HOME="/var/opt/gitlab"
 
-# Optional: You can add additional configuration files as needed
-# COPY other-config-file.conf /etc/gitlab/other-config.conf
+# Remove existing GitLab directories and files
+RUN rm -rf /var/opt/gitlab /etc/gitlab /var/log/gitlab \
+    /opt/gitlab/sv/logrotate \
+    /opt/gitlab/service/logrotate \
+    /etc/logrotate.d/gitlab* \
+    /var/opt/gitlab/logrotate
 
-# Ensure permissions are set correctly
-RUN chown -R root:root /var/opt/gitlab && chmod -R 0755 /var/opt/gitlab
+# Create fresh directories
+RUN mkdir -p /var/log/gitlab /var/opt/gitlab /etc/gitlab
 
-# Expose the ports that GitLab uses
+COPY config/gitlab-omnibus.rb /etc/gitlab/gitlab.rb
+
+RUN chmod 600 /etc/gitlab/gitlab.rb && \
+    chown root:root /etc/gitlab/gitlab.rb
+
+RUN chown -R root:git /var/opt/gitlab /etc/gitlab /var/log/gitlab && \
+    chmod -R 770 /var/opt/gitlab /etc/gitlab /var/log/gitlab && \
+    usermod -aG git root
+
+# Set basic log permissions
+RUN chown -R git:git /var/log/gitlab && \
+    chmod -R u+rwX,go-w /var/log/gitlab
+
+# Clear package manager cache to reduce image size
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 80 443 22
 
-# Start the GitLab services
-CMD ["gitlab-ctl", "reconfigure"]
+ENTRYPOINT ["/assets/wrapper"]
+CMD ["reconfigure"]
