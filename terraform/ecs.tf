@@ -21,8 +21,8 @@ resource "aws_ecs_task_definition" "gitlab_task" {
   family                   = "gitlab-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
-  cpu                      = "1024"
-  memory                   = "2048"
+  cpu                      = "4096"
+  memory                   = "8192"
   execution_role_arn = "arn:aws:iam::544234170512:role/ecsTaskExecutionRole"
   task_role_arn = aws_iam_role.ecs_task_role.arn
 
@@ -41,16 +41,16 @@ resource "aws_ecs_task_definition" "gitlab_task" {
       health_check = {
         command     = ["CMD-SHELL", "curl -f 0.0.0.0:80/-/health || exit 1"]
         interval    = 30                # Time (in seconds) between health checks
-        timeout     = 5                 # Time (in seconds) to wait for a response
+        timeout     = 10                # Time (in seconds) to wait for a response
         retries     = 3                 # Number of times to retry before marking the container as unhealthy
-        start_period = 10                # Time (in seconds) to wait after the container starts before beginning health checks
+        start_period = 300             # Time (in seconds) to wait after the container starts before beginning health checks
       }
 
 
       name      = "gitlab-CE"
       image     = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:115"  # Use the GitLab CE image from Docker Hub or ECR
-      cpu       = 512
-      memory    = 1024
+      cpu       = 2048
+      memory    = 8192
       essential = true
       portMappings = [
         {
@@ -114,6 +114,8 @@ volume {
   }
 }
 
+
+
 }
 
 
@@ -141,29 +143,7 @@ resource "aws_ecs_service" "gitlab_runner_service" {
   depends_on = [aws_lb.gitlab_lb]
 }
 
-/*
-# Auto Scaling Group and Launch Configuration
-resource "aws_launch_configuration" "gitlab_runner_lc" {
-  name          = "gitlab-runner-lc"
-  image_id      = aws_instance.gitlab_runner.ami  # Use the same AMI as your EC2 instance
-  instance_type = aws_instance.gitlab_runner.instance_type
-  iam_instance_profile = aws_iam_instance_profile.fargate_test_instance_profile.id
-  key_name = aws_key_pair.fargate_runner_manager.key_name
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_autoscaling_group" "gitlab_runner_asg" {
-  launch_configuration = aws_launch_configuration.gitlab_runner_lc.id
-  min_size             = 1
-  max_size             = 1
-  desired_capacity     = 1
-  vpc_zone_identifier  = [aws_subnet.subnets["subnet1"].id,aws_subnet.subnets["subnet2"].id]
-}
-
-*/
 
 resource "aws_security_group" "gitlab_sg" {
   vpc_id = aws_vpc.gitlab_vpc.id
@@ -203,22 +183,6 @@ resource "aws_security_group" "gitlab_sg" {
 
 
 
-resource "aws_lb_target_group" "gitlab_tg" {
-  name     = "gitlab-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.gitlab_vpc.id
-  target_type = "ip" 
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
-    interval            = 30
-    path                = "/health"
-    port                = "80"
-  }
-}
 
 resource "aws_iam_policy" "ecr_policy" {
   name        = "ECRAccessPolicy"
