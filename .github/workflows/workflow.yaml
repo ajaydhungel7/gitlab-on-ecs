@@ -41,22 +41,28 @@ jobs:
         docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest
         docker push $ECR_REPOSITORY:$IMAGE_TAG
         docker push $ECR_REPOSITORY:latest
+  push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
+    steps:
     - name: Get Current Task Definition
       run: |
-          aws ecs describe-task-definition --task-definition gitlab-task --query taskDefinition --output json > task-def.json
+            aws ecs describe-task-definition --task-definition gitlab-task --query taskDefinition --output json > task-def.json
 
     - name: Update Image Tag
       env:
-       IMAGE_TAG: ${{ github.sha }}
-  
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-          jq --arg newTag "$IMAGE_TAG" '.containerDefinitions[0].image = "$ECR_REPOSITORY" + $newTag' task-def.json > updated-task-def.json
+            jq --arg newTag "$IMAGE_TAG" '.containerDefinitions[0].image = "$ECR_REPOSITORY" + $newTag' task-def.json > updated-task-def.json
+            cat updated-task-def.json
 
     - name: Register New Task Definition
       run: |
-          aws ecs register-task-definition --cli-input-json file://updated-task-def.json
+            aws ecs register-task-definition --cli-input-json file://updated-task-def.json
 
     - name: Update ECS Service
       run: |
-          aws ecs update-service --cluster your-cluster-name --service your-service-name --force-new-deployment
+            aws ecs update-service --cluster your-cluster-name --service your-service-name --force-new-deployment
