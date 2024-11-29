@@ -166,3 +166,4 @@ gitlab_rails['time_zone'] = 'UTC'
 # Log Ownership
 logging['log_group'] = 'git'
 logging['log_user'] = 'git'
+gitlab_rails['initial_root_password'] ="admin"
