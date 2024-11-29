@@ -1,53 +1,22 @@
-FROM gitlab/gitlab-ce:17.3.7-ce.0
 
-ENV GITLAB_HOME="/var/opt/gitlab"
 
-# Combine directory operations and cleanup into a single layer
-RUN set -eux; \
-    # Remove existing directories and files
-    rm -rf \
-        /var/opt/gitlab \
-        /etc/gitlab \
-        /var/log/gitlab \
-        /opt/gitlab/sv/logrotate \
-        /opt/gitlab/service/logrotate \
-        /etc/logrotate.d/gitlab* \
-        /var/opt/gitlab/logrotate; \
-    # Create fresh directories
-    mkdir -p \
-        /var/log/gitlab \
-        /var/opt/gitlab \
-        /etc/gitlab; \
-    # Clean package manager cache
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
 
-# Copy configuration file
+# Use the official GitLab CE image as the base
+FROM gitlab/gitlab-ce:latest
+
+# Add the custom omnibus.rb file
 COPY config/gitlab-omnibus.rb /etc/gitlab/gitlab.rb
 
-# Set up all permissions in a single layer
-RUN set -eux; \
-    # Set configuration file permissions
-    chmod 600 /etc/gitlab/gitlab.rb && \
-    chown root:root /etc/gitlab/gitlab.rb && \
-    # Set directory permissions
-    chown -R root:git \
-        /var/opt/gitlab \
-        /etc/gitlab \
-        /var/log/gitlab && \
-    chmod -R 770 \
-        /var/opt/gitlab \
-        /etc/gitlab \
-        /var/log/gitlab && \
-    # Set log permissions
-    chown -R git:git /var/log/gitlab && \
-    chmod -R u+rwX,go-w /var/log/gitlab && \
-    # Add root to git group
-    usermod -aG git root && \
-    # Pre-configure GitLab to load settings on first run
-    touch /etc/gitlab/.gitlab-setup
+# Ensure proper permissions for the omnibus.rb file
+RUN chmod 600 /etc/gitlab/gitlab.rb && \
 
+    # Change permissions for GitLab directories
+    chmod -R 777 /var/opt/gitlab && \
+    chmod -R 777 /var/log/gitlab && \
+    chmod -R 777 /etc/gitlab && \
+
+    # Reconfigure GitLab to apply changes
+    gitlab-ctl reconfigure
+
+# Optional: Expose ports (if not already handled by the base image)
 EXPOSE 80 443 22
-
-ENTRYPOINT ["/assets/wrapper"]
-CMD ["reconfigure"]

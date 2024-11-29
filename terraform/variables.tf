@@ -56,3 +56,18 @@ variable "private_subnet_cidrs" {
   }
 }
 
+variable "state_bucket" {
+  description = "S3 bucket for state file"
+  default     = "state-bucket007"
+}
+
+variable "ecs_cluster_name" {
+  description = "Name of the ECS cluster"
+  default     = "gitlab-runner-cluster"
+}
+  
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository"
+  default     = "gitlab-runner-repo"
+}
+  
