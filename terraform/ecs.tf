@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "gitlab_task" {
   requires_compatibilities = ["EC2"]
   cpu                      = "4096"
   memory                   = "8192"
-  execution_role_arn = "arn:aws:iam::544234170512:role/ecsTaskExecutionRole"
+  execution_role_arn = "arn:aws:iam::*******:role/ecsTaskExecutionRole"
   task_role_arn = aws_iam_role.ecs_task_role.arn
 
 
@@ -46,7 +46,7 @@ resource "aws_ecs_task_definition" "gitlab_task" {
 
 
       name      = "gitlab-CE"
-      image     = "544234170512.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:115"  # Use the GitLab CE image from Docker Hub or ECR
+      image     = "*****.dkr.ecr.us-east-1.amazonaws.com/gitlab-runner-repo:115"  # Use the GitLab CE image from Docker Hub or ECR
       cpu       = 2048
       memory    = 8192
       essential = true
